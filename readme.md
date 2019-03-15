@@ -20,7 +20,7 @@ It provides highlevel methods to easly create excel files.
 
 ```javascript
 
-const excel = require('excel')
+const excel = require('excelmodule')
 
 // Create Workbook 
 let xlWorkbook = new excel.ExcelWorkbook();
