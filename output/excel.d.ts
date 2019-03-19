@@ -1,15 +1,14 @@
 import * as ex from 'exceljs';
-export declare class ExcelWorkbook {
-    exWorkbook: ex.Workbook;
-    constructor();
-    getWorkbook(): ex.Workbook;
-    saveWorkbook(path: string): boolean;
-}
 interface sheetConfig {
     properties: Partial<worksheetProperties>;
+    views: Array<Partial<worksheetViews>>;
 }
 interface worksheetProperties {
     tabColor: mycolour;
+    showGridLines: boolean;
+}
+interface worksheetViews {
+    showRuler: boolean;
     showGridLines: boolean;
 }
 interface mycolour {
@@ -29,7 +28,13 @@ interface Border {
     left: Partial<BorderStyle>;
     right: Partial<BorderStyle>;
 }
-export declare class ExcelWorksheet {
+export declare class exWorkbook {
+    exWorkbook: ex.Workbook;
+    constructor();
+    getWorkbook(): ex.Workbook;
+    saveWorkbook(path: string): boolean;
+}
+export declare class exWorksheet {
     exWorkbook: ex.Workbook;
     exsheet: ex.Worksheet;
     sheetName: string;
@@ -38,6 +43,7 @@ export declare class ExcelWorksheet {
     private createWorksheet;
     addHeaders(col: column[]): void;
     addData(data: JSON[]): void;
+    addDataWithRowTotal(data: JSON[], totalHeader: string, ...col: string[]): void;
     colorHeader(headerColour: Partial<mycolour>): void;
     border(style: Border): void;
 }

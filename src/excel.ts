@@ -1,36 +1,20 @@
 import * as ex from 'exceljs'
 
-export class ExcelWorkbook {
-
-    exWorkbook: ex.Workbook;
-    
-    constructor() {
-        this.exWorkbook = new ex.Workbook();
-    }
-
-    getWorkbook() : ex.Workbook {
-        return this.exWorkbook;
-    }
-
-    saveWorkbook(path: string): boolean {
-        try {
-            this.exWorkbook.xlsx.writeFile(path);
-            return true;
-        } catch (e) {
-            return false;
-        }
-    }
-
-}
-
 interface sheetConfig {
     properties: Partial<worksheetProperties>;
+    views : Array<Partial<worksheetViews>>;
 }
 
 interface worksheetProperties {
     tabColor: mycolour;
     showGridLines: boolean;
 }
+
+interface worksheetViews{
+    showRuler : boolean;
+    showGridLines : boolean;
+}
+
 
 interface mycolour {
     argb: string;
@@ -53,7 +37,105 @@ interface Border {
     right: Partial<BorderStyle>;
 }
 
-export class ExcelWorksheet {
+function rowTotal(value: number, worksheet: ex.Worksheet , ...cols : string[]) {
+
+    let rowHeaders = getRowHeader(worksheet);
+    // console.log(` Row index : ${value}`)
+    let  colAddArray : string[] = [];
+
+    cols.forEach(colHeader => {
+        // console.log(colHeader);
+        let cellAddress = rowHeaders.get(colHeader);
+        // console.log(`Column ${colHeader} has cell address of ${cellAddress}`);
+        colAddArray.push(`${cellAddress}`);
+    });
+    
+    let range : string = "";
+
+    if(colAddArray){
+        let falphabet = colAddArray[0].substr(0,1);
+        let fnumber = colAddArray[0].substr(1,1);
+        let firstCellReference = `${falphabet}${parseInt(fnumber) + value + 1}`;
+
+        let lalphabet = colAddArray[colAddArray.length-1].substr(0,1);
+        let lnumber = colAddArray[colAddArray.length-1].substr(1,1);
+        let lastCellReference = `${lalphabet}${parseInt(lnumber) + value + 1}`;
+        range = `${firstCellReference} : ${lastCellReference}`;
+        // console.log(range);
+    }
+ 
+    return {
+        formula: `sum(${range})`
+    }
+}
+
+function getColInitials(colInitial : string){
+
+    return colInitial.substr(0,1);
+
+}
+
+function colTotal(worksheet: ex.Worksheet, no_of_rows_in_col: number , col: string) {
+
+    let colMap = getRowHeader(worksheet);
+    let range;
+    let firstCell = `${colMap.get(col)}${2}`;
+    let lastCell = `${colMap.get(col)}${no_of_rows_in_col+1}`;
+    range = `${firstCell}:${lastCell}`;
+    return {
+        formula : `sum(${range})`
+    }
+}
+
+function getRowHeader(worksheet: ex.Worksheet): Map<string, string> {
+    // Contains cell information for Row Headers...
+    let map = new Map();
+
+    let row = worksheet.getRow(1);
+
+    for (const key in row.model) {
+        if (key == 'cells') {
+            let model = row.model;
+
+            for (const key in model.cells) {
+
+                if (model.cells.hasOwnProperty(key)) {
+
+                    let i: number = parseInt(key);
+                    // console.log(model.cells[i]);   
+                    map.set(model.cells[i].value, getColInitials(model.cells[i].address.toString()));
+                }
+            }
+        }
+    };
+
+    return map;
+}
+
+
+export class exWorkbook {
+
+    exWorkbook: ex.Workbook;
+    
+    constructor() {
+        this.exWorkbook = new ex.Workbook();
+    }
+
+    getWorkbook() : ex.Workbook {
+        return this.exWorkbook;
+    }
+
+    saveWorkbook(path: string): boolean {
+        try {
+            this.exWorkbook.xlsx.writeFile(path);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+}
+export class exWorksheet {
 
     exWorkbook : ex.Workbook;
     exsheet!: ex.Worksheet;
@@ -66,6 +148,7 @@ export class ExcelWorksheet {
         this.sheetName = sheetName;
         if (options) {
             this.options = options;
+            console.log(this.options);
         }
         this.exsheet = this.createWorksheet();
     }
@@ -85,6 +168,17 @@ export class ExcelWorksheet {
 
     addData(data: JSON[]) {
         this.exsheet.addRows(data);
+    }
+
+    addDataWithRowTotal(data : JSON[], totalHeader : string , ...col : string[]){
+        console.log(...col);
+
+        data.forEach((v,i)=>{
+            this.exsheet.addRow({
+                ...v,
+                [totalHeader] : rowTotal(i,this.exsheet, ...col)
+            })
+        })
     }
 
     colorHeader(headerColour: Partial<mycolour>) {

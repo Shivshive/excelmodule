@@ -8,60 +8,65 @@
 
 const excel = require('./output/excel');
 
-let exworkbook = new excel.ExcelWorkbook();
+let exworkbook = new excel.exWorkbook();
 
-let exsheet = new excel.ExcelWorksheet(exworkbook.getWorkbook(), 'NewSheet',{
+let exsheet = new excel.exWorksheet(exworkbook.getWorkbook(), 'NewSheet',{
     properties :{
         tabColor: {
             argb: 'FFFF0000'
         },
         showGridLines : false
-    }
+    },
+    views : [
+        {
+            showRuler : true,
+            showGridLines : false
+        }
+    ]
 });
 
 exsheet.addHeaders([
-    {header : 'S.NO.', key : 'sno', width: 20},
-    {header : 'Items', key : 'item', width: 30},
-    {header : 'Quantity', key : 'qty', width: 30},
-    {header : 'Price of Product', key : 'price', width: 40}
+    {header : 'Name', key : 'name', width: 20},
+    {header : 'Sal-18', key : 's18', width: 10},
+    {header : 'Sal-19', key : 's19', width: 10},
+    {header : 'Sal-20', key : 's20', width: 10},
+    {header : 'Total_Sal_Count', key: 'Total_Sal_Count', width : 20}
 ])
 
 exsheet.colorHeader({
     argb : 'FFFF0000'
 })
 
+let data = [
+    {
+        "name" : "Bobby Singer",
+        "s18" : 12,
+        "s19" : 30,
+        "s20" : 30
+    },
+    {
+        "name" : "John Berry Alan",
+        "s18" : 10,
+        "s19" : 20,
+        "s20" : 10
+    },
+    {
+        "name" : "Melissa Adhock",
+        "s18" : 20,
+        "s19" : 40,
+        "s20" : 10
+    },
+    {
+        "name" : "Jim Karry",
+        "s18" : 20,
+        "s19" : 10,
+        "s20" : 15
+    },
+        
+    ]
 
 
-exsheet.addData([
-    {
-        "sno" : "1",
-        "item" : "Cold Drinks",
-        "qty" : "5",
-        "price" : "50"
-    },
-    
-    {
-        "sno" : "2",
-        "item" : "Hand Wash",
-        "qty" : "1",
-        "price" : "150"
-    },
-    
-    {
-        "sno" : "3",
-        "item" : "Soaps",
-        "qty" : "10",
-        "price" : "100"
-    },
-    
-    {
-        "sno" : "4",
-        "item" : "Dish Wash",
-        "qty" : "1",
-        "price" : "300"
-    }
-    
-])
+exsheet.addDataWithRowTotal(data,'Total_Sal_Count','Sal-18','Sal-19','Sal-20');
 
 exsheet.border({
     top : {

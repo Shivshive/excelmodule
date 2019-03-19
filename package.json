@@ -5,7 +5,9 @@
   "license": "MIT",
   "scripts": {
     "start": "node main.js",
-    "tc": "tsc && node output/index.js"
+    "tc": "tsc && node output/index.js",
+    "tcf" : "tsc && node output/formula.js",
+    "tcr" : "tsc && node output/rowHeader.js"
   },
   "dependencies": {
     "exceljs": "^1.7.0"
